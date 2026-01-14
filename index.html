@@ -1,1 +1,202 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DualPay – Ресто BGN / EUR</title>
 
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: #ECE9F6;
+    overflow-x: hidden;
+  }
+  h1,h2 {
+    font-family: 'Comfortaa', cursive;
+  }
+
+  .glass {
+    backdrop-filter: blur(14px);
+    background: rgba(244,241,250,0.85);
+  }
+
+  .float {
+    animation: float 18s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% { transform: translate(0,0) rotate(0deg) scale(1); }
+    50% { transform: translate(20px,-30px) rotate(4deg) scale(1.05); }
+    100% { transform: translate(0,0) rotate(0deg) scale(1); }
+  }
+</style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center relative">
+
+<!-- Dynamic Background -->
+<div class="absolute inset-0 grid grid-cols-6 grid-rows-8 text-5xl text-blue-900 opacity-[0.08] pointer-events-none">
+  <template id="bg">
+    <div class="flex items-center justify-center float">€</div>
+    <div class="flex items-center justify-center float">лв</div>
+  </template>
+</div>
+
+<!-- App -->
+<div class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl glass p-6 space-y-5">
+
+  <!-- Logo -->
+  <div class="flex items-center justify-center">
+    <div class="bg-[#1E3A8A] text-white px-6 py-3 rounded-2xl shadow-lg text-xl">
+      € ⇄ лв
+    </div>
+  </div>
+
+  <h1 class="text-center text-2xl text-[#1E3A8A]">DualPay</h1>
+
+  <!-- Amount Due -->
+  <div>
+    <label class="text-sm font-semibold">Сума за плащане</label>
+    <div class="flex gap-2">
+      <input id="due" type="number" step="0.01" class="flex-1 rounded-xl p-3 bg-[#F8FAFF] shadow-inner">
+      <select id="dueCur" class="rounded-xl p-3 bg-[#F8FAFF]">
+        <option>BGN</option>
+        <option>EUR</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Paid -->
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="text-sm">Платено в лв</label>
+      <input id="paidBGN" type="number" step="0.01" class="w-full rounded-xl p-3 bg-white shadow-inner">
+    </div>
+    <div>
+      <label class="text-sm">Платено в €</label>
+      <input id="paidEUR" type="number" step="0.01" class="w-full rounded-xl p-3 bg-white shadow-inner">
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="error" class="hidden bg-red-100 text-red-700 p-3 rounded-xl text-center">
+    Недостатъчна сума
+  </div>
+
+  <!-- Change -->
+  <div id="result" class="hidden space-y-3">
+    <div class="flex bg-[#1E3A8A]/10 rounded-xl overflow-hidden">
+      <button onclick="setOut('BGN')" class="flex-1 py-2 font-semibold">BGN</button>
+      <button onclick="setOut('EUR')" class="flex-1 py-2 font-semibold">EUR</button>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-inner text-center">
+      <div id="changeMain" class="text-2xl font-bold text-[#1E3A8A]"></div>
+      <div id="changeAlt" class="text-sm text-gray-500"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center text-xs text-gray-500 pt-3">
+    Курс: 1 EUR = 1.95583 BGN<br>
+    © ChatGPT
+  </div>
+</div>
+
+<script>
+const rate = 1.95583;
+let outCur = 'BGN';
+
+function calc() {
+  const due = parseFloat(due.value) || 0;
+  const dueBGN = dueCur.value === 'EUR' ? due * rate : due;
+
+  const paidBGN = (parseFloat(paidBGNInput.value)||0) +
+                  (parseFloat(paidEURInput.value)||0) * rate;
+
+  const diff = paidBGN - dueBGN;
+
+  if (diff < -0.009) {
+    error.classList.remove('hidden');
+    result.classList.add('hidden');
+    return;
+  }
+
+  error.classList.add('hidden');
+  result.classList.remove('hidden');
+
+  if (outCur === 'BGN') {
+    changeMain.textContent = diff.toFixed(2) + ' лв';
+    changeAlt.textContent = (diff / rate).toFixed(2) + ' €';
+  } else {
+    changeMain.textContent = (diff / rate).toFixed(2) + ' €';
+    changeAlt.textContent = diff.toFixed(2) + ' лв';
+  }
+}
+
+function setOut(c) {
+  outCur = c;
+  calc();
+}
+
+const due = document.getElementById('due');
+const dueCur = document.getElementById('dueCur');
+const paidBGNInput = document.getElementById('paidBGN');
+const paidEURInput = document.getElementById('paidEUR');
+const error = document.getElementById('error');
+const result = document.getElementById('result');
+const changeMain = document.getElementById('changeMain');
+const changeAlt = document.getElementById('changeAlt');
+
+[due, dueCur, paidBGNInput, paidEURInput].forEach(el => el.addEventListener('input', calc));
+
+/* Background populate */
+const bg = document.querySelector('.grid');
+const tpl = document.getElementById('bg').content;
+for (let i=0;i<48;i++) bg.appendChild(tpl.cloneNode(true));
+
+/* PWA */
+const canvas = document.createElement('canvas');
+canvas.width = canvas.height = 512;
+const ctx = canvas.getContext('2d');
+ctx.fillStyle = '#1E3A8A';
+ctx.fillRect(0,0,512,512);
+ctx.fillStyle = '#fff';
+ctx.font = 'bold 120px Comfortaa';
+ctx.textAlign='center';
+ctx.textBaseline='middle';
+ctx.fillText('€ ⇄ лв',256,256);
+const icon = canvas.toDataURL();
+
+const manifest = {
+  name: "DualPay",
+  short_name: "DualPay",
+  start_url: ".",
+  display: "standalone",
+  background_color: "#F4F1FA",
+  theme_color: "#1E3A8A",
+  icons: [{ src: icon, sizes: "512x512", type: "image/png" }]
+};
+
+const mBlob = new Blob([JSON.stringify(manifest)],{type:'application/json'});
+const mURL = URL.createObjectURL(mBlob);
+const link = document.createElement('link');
+link.rel='manifest';
+link.href=mURL;
+document.head.appendChild(link);
+
+const swCode = `
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('fetch',e=>e.respondWith(fetch(e.request)));
+`;
+const swBlob = new Blob([swCode],{type:'text/javascript'});
+navigator.serviceWorker.register(URL.createObjectURL(swBlob));
+</script>
+
+</body>
+</html>
