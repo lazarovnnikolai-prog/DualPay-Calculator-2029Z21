@@ -11,15 +11,10 @@
 <style>
 body{
   font-family:'Montserrat',sans-serif;
-  background:linear-gradient(135deg,#E8F3EC,#F3F7F3,#E6F1EB);
-  background-size:300% 300%;
-  animation:bgMove 18s ease infinite;
+  background:
+    radial-gradient(circle at top,#1f3d2b,#0f2a1d 60%);
+  min-height:100vh;
   overflow-x:hidden;
-}
-@keyframes bgMove{
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
 }
 
 h1{font-family:'Comfortaa',cursive}
@@ -27,31 +22,57 @@ h1{font-family:'Comfortaa',cursive}
 .glass{
   background:linear-gradient(
     180deg,
-    rgba(255,255,255,0.96),
-    rgba(245,250,247,0.92)
+    rgba(255,255,255,0.92),
+    rgba(235,245,240,0.88)
   );
-  backdrop-filter:blur(16px);
+  backdrop-filter:blur(18px);
 }
 
-.input-soft{
-  background:linear-gradient(180deg,#FFFFFF,#F0F8F4);
+.input-forest{
+  background:linear-gradient(180deg,#f7fcfa,#e2efe9);
+  border:1px solid #94b8a2;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.08),
+    0 0 0 0 rgba(20,83,45,0.0);
+  transition:all .2s ease;
+}
+.input-forest:focus{
+  outline:none;
+  border-color:#14532D;
+  box-shadow:
+    inset 0 2px 4px rgba(0,0,0,0.08),
+    0 0 0 3px rgba(20,83,45,0.25);
+}
+
+.logo{
+  background-color:#14532D;
+  color:white;
+  font-family:'Comfortaa',cursive;
+  text-align:center;
+  font-weight:bold;
+  padding:12px 20px;
+  border-radius:1rem;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  font-size:1.25rem;
+  margin-bottom:8px;
+  letter-spacing:1px;
 }
 
 .float{
-  animation:float 22s ease-in-out infinite;
+  animation:float 26s ease-in-out infinite;
 }
 @keyframes float{
   0%{transform:translate(0,0) rotate(0) scale(1)}
-  50%{transform:translate(18px,-22px) rotate(2deg) scale(1.05)}
+  50%{transform:translate(14px,-18px) rotate(1.8deg) scale(1.05)}
   100%{transform:translate(0,0) rotate(0) scale(1)}
 }
 </style>
 </head>
 
-<body class="min-h-screen flex items-center justify-center relative">
+<body class="flex items-center justify-center relative">
 
-<!-- Dynamic background -->
-<div class="absolute inset-0 grid grid-cols-6 grid-rows-8 text-5xl text-green-900 opacity-[0.07] pointer-events-none">
+<!-- Background symbols -->
+<div class="absolute inset-0 grid grid-cols-6 grid-rows-8 text-5xl text-green-200 opacity-[0.06] pointer-events-none">
   <template id="bg">
     <div class="flex items-center justify-center float">€</div>
     <div class="flex items-center justify-center float">лв</div>
@@ -61,17 +82,19 @@ h1{font-family:'Comfortaa',cursive}
 <!-- App -->
 <div class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl glass p-6 space-y-5">
 
-  <!-- Title only -->
+  <!-- Logo plочка -->
+  <div class="logo">€ ⇄ лв</div>
+
   <h1 class="text-center text-2xl text-[#14532D]">DualPay</h1>
 
-  <!-- Amount due -->
+  <!-- Due -->
   <div>
-    <label class="text-sm font-semibold">Сума за плащане</label>
+    <label class="text-sm font-semibold text-gray-700">Сума за плащане</label>
     <div class="flex gap-2">
       <input id="due" type="number" step="0.01"
-        class="flex-1 rounded-xl p-3 input-soft shadow-inner">
+        class="flex-1 rounded-xl p-3 input-forest">
       <select id="dueCur"
-        class="rounded-xl p-3 input-soft shadow-inner">
+        class="rounded-xl p-3 input-forest">
         <option>BGN</option>
         <option>EUR</option>
       </select>
@@ -81,31 +104,31 @@ h1{font-family:'Comfortaa',cursive}
   <!-- Paid -->
   <div class="grid grid-cols-2 gap-3">
     <div>
-      <label class="text-sm">Платено в лв</label>
+      <label class="text-sm text-gray-700">Платено в лв</label>
       <input id="paidBGN" type="number" step="0.01"
-        class="w-full rounded-xl p-3 input-soft shadow-inner">
+        class="w-full rounded-xl p-3 input-forest">
     </div>
     <div>
-      <label class="text-sm">Платено в €</label>
+      <label class="text-sm text-gray-700">Платено в €</label>
       <input id="paidEUR" type="number" step="0.01"
-        class="w-full rounded-xl p-3 input-soft shadow-inner">
+        class="w-full rounded-xl p-3 input-forest">
     </div>
   </div>
 
   <!-- Error -->
-  <div id="error" class="hidden bg-red-100 text-red-800 p-3 rounded-xl text-center">
+  <div id="error" class="hidden bg-red-200 text-red-900 p-3 rounded-xl text-center font-semibold">
     Недостатъчна сума
   </div>
 
   <!-- Result -->
   <div id="result" class="hidden space-y-3">
-    <div class="flex bg-[#14532D]/10 rounded-xl overflow-hidden">
+    <div class="flex bg-[#14532D]/15 rounded-xl overflow-hidden">
       <button onclick="setOut('BGN')" class="flex-1 py-2 font-semibold">BGN</button>
       <button onclick="setOut('EUR')" class="flex-1 py-2 font-semibold">EUR</button>
     </div>
     <div class="bg-white rounded-xl p-4 shadow-inner text-center">
       <div id="changeMain" class="text-2xl font-bold text-[#14532D]"></div>
-      <div id="changeAlt" class="text-sm text-gray-500"></div>
+      <div id="changeAlt" class="text-sm text-gray-600"></div>
     </div>
   </div>
 
@@ -148,42 +171,6 @@ function setOut(c){outCur=c;calc();}
 const bg=document.querySelector('.grid');
 const tpl=document.getElementById('bg').content;
 for(let i=0;i<48;i++)bg.appendChild(tpl.cloneNode(true));
-
-/* PWA */
-const canvas=document.createElement('canvas');
-canvas.width=canvas.height=512;
-const ctx=canvas.getContext('2d');
-ctx.fillStyle='#14532D';
-ctx.fillRect(0,0,512,512);
-ctx.fillStyle='#fff';
-ctx.font='bold 120px Comfortaa';
-ctx.textAlign='center';
-ctx.textBaseline='middle';
-ctx.fillText('€ ⇄ лв',256,256);
-const icon=canvas.toDataURL();
-
-const manifest={
-  name:'DualPay',
-  short_name:'DualPay',
-  start_url:'.',
-  display:'standalone',
-  background_color:'#F3F7F3',
-  theme_color:'#14532D',
-  icons:[{src:icon,sizes:'512x512',type:'image/png'}]
-};
-const mURL=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));
-const link=document.createElement('link');
-link.rel='manifest';
-link.href=mURL;
-document.head.appendChild(link);
-
-const swCode=`
-self.addEventListener('install',e=>self.skipWaiting());
-self.addEventListener('fetch',e=>e.respondWith(fetch(e.request)));
-`;
-navigator.serviceWorker.register(
-  URL.createObjectURL(new Blob([swCode],{type:'text/javascript'}))
-);
 </script>
 
 </body>
