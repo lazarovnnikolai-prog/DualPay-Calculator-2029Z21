@@ -33,5 +33,145 @@ h1{font-family:'Comfortaa',cursive}
 </style>
 </head>
 
-<body clas
+<body class="min-h-screen flex items-center justify-center relative">
+
+<!-- Background -->
+<div class="absolute inset-0 grid grid-cols-6 grid-rows-8 text-5xl text-teal-900 opacity-[0.07] pointer-events-none">
+  <template id="bg">
+    <div class="flex items-center justify-center float">€</div>
+    <div class="flex items-center justify-center float">лв</div>
+  </template>
+</div>
+
+<!-- App -->
+<div class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl glass p-6 space-y-5">
+
+  <!-- Logo -->
+  <div class="flex justify-center">
+    <div class="bg-[#0F766E] text-white px-6 py-3 rounded-2xl shadow-lg text-xl">
+      € ⇄ лв
+    </div>
+  </div>
+
+  <h1 class="text-center text-2xl text-[#0F766E]">DualPay</h1>
+
+  <!-- Due -->
+  <div>
+    <label class="text-sm font-semibold">Сума за плащане</label>
+    <div class="flex gap-2">
+      <input id="due" type="number" step="0.01"
+        class="flex-1 rounded-xl p-3 bg-[#F8FEFD] shadow-inner">
+      <select id="dueCur" class="rounded-xl p-3 bg-[#F8FEFD]">
+        <option>BGN</option>
+        <option>EUR</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Paid -->
+  <div class="grid grid-cols-2 gap-3">
+    <div>
+      <label class="text-sm">Платено в лв</label>
+      <input id="paidBGN" type="number" step="0.01"
+        class="w-full rounded-xl p-3 bg-white shadow-inner">
+    </div>
+    <div>
+      <label class="text-sm">Платено в €</label>
+      <input id="paidEUR" type="number" step="0.01"
+        class="w-full rounded-xl p-3 bg-white shadow-inner">
+    </div>
+  </div>
+
+  <!-- Error -->
+  <div id="error" class="hidden bg-red-100 text-red-700 p-3 rounded-xl text-center">
+    Недостатъчна сума
+  </div>
+
+  <!-- Result -->
+  <div id="result" class="hidden space-y-3">
+    <div class="flex bg-[#0F766E]/10 rounded-xl overflow-hidden">
+      <button onclick="setOut('BGN')" class="flex-1 py-2 font-semibold">BGN</button>
+      <button onclick="setOut('EUR')" class="flex-1 py-2 font-semibold">EUR</button>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow-inner text-center">
+      <div id="changeMain" class="text-2xl font-bold text-[#0F766E]"></div>
+      <div id="changeAlt" class="text-sm text-gray-500"></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="text-center text-xs text-gray-500 pt-3">
+    Курс: 1 EUR = 1.95583 BGN<br>
+    © ChatGPT
+  </div>
+</div>
+
+<script>
+const rate=1.95583;
+let outCur='BGN';
+
+function calc(){
+  const dueVal=parseFloat(due.value)||0;
+  const dueBGN=dueCur.value==='EUR'?dueVal*rate:dueVal;
+  const paid=(parseFloat(paidBGN.value)||0)+(parseFloat(paidEUR.value)||0)*rate;
+  const diff=paid-dueBGN;
+
+  if(diff<-0.009){
+    error.classList.remove('hidden');
+    result.classList.add('hidden');
+    return;
+  }
+  error.classList.add('hidden');
+  result.classList.remove('hidden');
+
+  if(outCur==='BGN'){
+    changeMain.textContent=diff.toFixed(2)+' лв';
+    changeAlt.textContent=(diff/rate).toFixed(2)+' €';
+  }else{
+    changeMain.textContent=(diff/rate).toFixed(2)+' €';
+    changeAlt.textContent=diff.toFixed(2)+' лв';
+  }
+}
+
+function setOut(c){outCur=c;calc();}
+
+[due,dueCur,paidBGN,paidEUR].forEach(e=>e.addEventListener('input',calc));
+
+const bg=document.querySelector('.grid');
+const tpl=document.getElementById('bg').content;
+for(let i=0;i<48;i++)bg.appendChild(tpl.cloneNode(true));
+
+/* PWA */
+const canvas=document.createElement('canvas');
+canvas.width=canvas.height=512;
+const ctx=canvas.getContext('2d');
+ctx.fillStyle='#0F766E';
+ctx.fillRect(0,0,512,512);
+ctx.fillStyle='#fff';
+ctx.font='bold 120px Comfortaa';
+ctx.textAlign='center';
+ctx.textBaseline='middle';
+ctx.fillText('€ ⇄ лв',256,256);
+const icon=canvas.toDataURL();
+
+const manifest={
+  name:'DualPay',
+  short_name:'DualPay',
+  start_url:'.',
+  display:'standalone',
+  background_color:'#F1F7F6',
+  theme_color:'#0F766E',
+  icons:[{src:icon,sizes:'512x512',type:'image/png'}]
+};
+const mURL=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));
+const link=document.createElement('link');
+link.rel='manifest';link.href=mURL;document.head.appendChild(link);
+
+const swCode=`self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('fetch',e=>e.respondWith(fetch(e.request)));`;
+navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode],{type:'text/javascript'})));
+</script>
+
+</body>
+</html>
 
