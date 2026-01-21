@@ -8,169 +8,144 @@
 <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@600&family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 
+<meta name="theme-color" content="#14532D">
+
 <style>
 body{
   font-family:'Montserrat',sans-serif;
-  background:
-    radial-gradient(circle at top,#1f3d2b,#0f2a1d 60%);
+  background:radial-gradient(circle at top,#1f3d2b,#0f2a1d 60%);
   min-height:100vh;
   overflow-x:hidden;
 }
-
 h1{font-family:'Comfortaa',cursive}
-
 .glass{
-  background:linear-gradient(
-    180deg,
-    rgba(255,255,255,0.92),
-    rgba(235,245,240,0.88)
-  );
+  background:linear-gradient(180deg,rgba(255,255,255,0.92),rgba(235,245,240,0.88));
   backdrop-filter:blur(18px);
 }
-
 .input-forest{
   background:linear-gradient(180deg,#f7fcfa,#e2efe9);
   border:1px solid #94b8a2;
-  box-shadow:
-    inset 0 2px 4px rgba(0,0,0,0.08),
-    0 0 0 0 rgba(20,83,45,0.0);
-  transition:all .2s ease;
 }
-.input-forest:focus{
-  outline:none;
-  border-color:#14532D;
-  box-shadow:
-    inset 0 2px 4px rgba(0,0,0,0.08),
-    0 0 0 3px rgba(20,83,45,0.25);
-}
-
 .logo{
-  background-color:#14532D;
+  background:#14532D;
   color:white;
-  font-family:'Comfortaa',cursive;
+  font-family:'Comfortaa';
   text-align:center;
   font-weight:bold;
   padding:12px 20px;
   border-radius:1rem;
-  box-shadow:0 4px 12px rgba(0,0,0,0.3);
   font-size:1.25rem;
-  margin-bottom:8px;
-  letter-spacing:1px;
 }
-
-.float{
-  animation:float 26s ease-in-out infinite;
-}
+.float{animation:float 26s ease-in-out infinite}
 @keyframes float{
-  0%{transform:translate(0,0) rotate(0) scale(1)}
   50%{transform:translate(14px,-18px) rotate(1.8deg) scale(1.05)}
-  100%{transform:translate(0,0) rotate(0) scale(1)}
 }
 </style>
 </head>
 
 <body class="flex items-center justify-center relative">
 
-<!-- Background symbols -->
-<div class="absolute inset-0 grid grid-cols-6 grid-rows-8 text-5xl text-green-200 opacity-[0.06] pointer-events-none">
-  <template id="bg">
-    <div class="flex items-center justify-center float">€</div>
-    <div class="flex items-center justify-center float">лв</div>
-  </template>
-</div>
-
-<!-- App -->
 <div class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl glass p-6 space-y-5">
-
-  <!-- Logo plочка -->
   <div class="logo">€ ⇄ лв</div>
-
   <h1 class="text-center text-2xl text-[#14532D]">DualPay</h1>
 
-  <!-- Due -->
   <div>
-    <label class="text-sm font-semibold text-gray-700">Сума за плащане</label>
+    <label class="text-sm font-semibold">Сума за плащане</label>
     <div class="flex gap-2">
-      <input id="due" type="number" step="0.01"
-        class="flex-1 rounded-xl p-3 input-forest">
-      <select id="dueCur"
-        class="rounded-xl p-3 input-forest">
+      <input id="due" type="number" step="0.01" class="flex-1 rounded-xl p-3 input-forest">
+      <select id="dueCur" class="rounded-xl p-3 input-forest">
         <option>BGN</option>
         <option>EUR</option>
       </select>
     </div>
   </div>
 
-  <!-- Paid -->
   <div class="grid grid-cols-2 gap-3">
-    <div>
-      <label class="text-sm text-gray-700">Платено в лв</label>
-      <input id="paidBGN" type="number" step="0.01"
-        class="w-full rounded-xl p-3 input-forest">
-    </div>
-    <div>
-      <label class="text-sm text-gray-700">Платено в €</label>
-      <input id="paidEUR" type="number" step="0.01"
-        class="w-full rounded-xl p-3 input-forest">
-    </div>
+    <input id="paidBGN" placeholder="Платено лв" type="number" step="0.01" class="rounded-xl p-3 input-forest">
+    <input id="paidEUR" placeholder="Платено €" type="number" step="0.01" class="rounded-xl p-3 input-forest">
   </div>
 
-  <!-- Error -->
-  <div id="error" class="hidden bg-red-200 text-red-900 p-3 rounded-xl text-center font-semibold">
+  <div id="error" class="hidden bg-red-200 p-3 rounded-xl text-center font-semibold">
     Недостатъчна сума
   </div>
 
-  <!-- Result -->
-  <div id="result" class="hidden space-y-3">
-    <div class="flex bg-[#14532D]/15 rounded-xl overflow-hidden">
-      <button onclick="setOut('BGN')" class="flex-1 py-2 font-semibold">BGN</button>
-      <button onclick="setOut('EUR')" class="flex-1 py-2 font-semibold">EUR</button>
-    </div>
-    <div class="bg-white rounded-xl p-4 shadow-inner text-center">
-      <div id="changeMain" class="text-2xl font-bold text-[#14532D]"></div>
-      <div id="changeAlt" class="text-sm text-gray-600"></div>
-    </div>
+  <div id="result" class="hidden bg-white rounded-xl p-4 text-center">
+    <div id="changeMain" class="text-2xl font-bold text-[#14532D]"></div>
+    <div id="changeAlt" class="text-sm text-gray-600"></div>
   </div>
 
-  <!-- Footer -->
-  <div class="text-center text-xs text-gray-500 pt-3">
+  <div class="text-center text-xs text-gray-500">
     Курс: 1 EUR = 1.95583 BGN<br>
-    © lazarovnnikolai
+    © Nikolai Lazarov
   </div>
 </div>
 
 <script>
+/* === APP LOGIC === */
 const rate=1.95583;
-let outCur='BGN';
+const due=document.getElementById('due');
+const dueCur=document.getElementById('dueCur');
+const paidBGN=document.getElementById('paidBGN');
+const paidEUR=document.getElementById('paidEUR');
+const error=document.getElementById('error');
+const result=document.getElementById('result');
+const changeMain=document.getElementById('changeMain');
+const changeAlt=document.getElementById('changeAlt');
 
 function calc(){
   const dueVal=parseFloat(due.value)||0;
   const dueBGN=dueCur.value==='EUR'?dueVal*rate:dueVal;
   const paid=(parseFloat(paidBGN.value)||0)+(parseFloat(paidEUR.value)||0)*rate;
-  const diff=paid-dueBGN;
-
-  if(diff<-0.009){
+  let diff=paid-dueBGN;
+  if(diff<-0.01){
     error.classList.remove('hidden');
     result.classList.add('hidden');
     return;
   }
+  diff=Math.max(0,diff);
   error.classList.add('hidden');
   result.classList.remove('hidden');
-
-  if(outCur==='BGN'){
-    changeMain.textContent=diff.toFixed(2)+' лв';
-    changeAlt.textContent=(diff/rate).toFixed(2)+' €';
-  }else{
-    changeMain.textContent=(diff/rate).toFixed(2)+' €';
-    changeAlt.textContent=diff.toFixed(2)+' лв';
-  }
+  changeMain.textContent=diff.toFixed(2)+' лв';
+  changeAlt.textContent=(diff/rate).toFixed(2)+' €';
 }
-function setOut(c){outCur=c;calc();}
 [due,dueCur,paidBGN,paidEUR].forEach(e=>e.addEventListener('input',calc));
 
-const bg=document.querySelector('.grid');
-const tpl=document.getElementById('bg').content;
-for(let i=0;i<48;i++)bg.appendChild(tpl.cloneNode(true));
+/* === EMBEDDED MANIFEST === */
+const manifest={
+  name:"DualPay",
+  short_name:"DualPay",
+  start_url:".",
+  display:"standalone",
+  background_color:"#0f2a1d",
+  theme_color:"#14532D"
+};
+const manifestURL=URL.createObjectURL(new Blob(
+  [JSON.stringify(manifest)],
+  {type:"application/manifest+json"}
+));
+const link=document.createElement("link");
+link.rel="manifest";
+link.href=manifestURL;
+document.head.appendChild(link);
+
+/* === EMBEDDED SERVICE WORKER === */
+if("serviceWorker" in navigator){
+  const swCode=`
+    const CACHE="dualpay-v1";
+    self.addEventListener("install",e=>{
+      e.waitUntil(
+        caches.open(CACHE).then(c=>c.addAll(["./"]))
+      );
+    });
+    self.addEventListener("fetch",e=>{
+      e.respondWith(
+        caches.match(e.request).then(r=>r||fetch(e.request))
+      );
+    });
+  `;
+  const swURL=URL.createObjectURL(new Blob([swCode],{type:"text/javascript"}));
+  navigator.serviceWorker.register(swURL);
+}
 </script>
 
 </body>
