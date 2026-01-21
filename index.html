@@ -15,11 +15,10 @@ body{
   font-family:'Montserrat',sans-serif;
   background:radial-gradient(circle at top,#1f3d2b,#0f2a1d 60%);
   min-height:100vh;
-  overflow-x:hidden;
 }
 h1{font-family:'Comfortaa',cursive}
 .glass{
-  background:linear-gradient(180deg,rgba(255,255,255,0.92),rgba(235,245,240,0.88));
+  background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(235,245,240,.88));
   backdrop-filter:blur(18px);
 }
 .input-forest{
@@ -30,22 +29,18 @@ h1{font-family:'Comfortaa',cursive}
   background:#14532D;
   color:white;
   font-family:'Comfortaa';
-  text-align:center;
   font-weight:bold;
-  padding:12px 20px;
+  padding:12px;
   border-radius:1rem;
-  font-size:1.25rem;
-}
-.float{animation:float 26s ease-in-out infinite}
-@keyframes float{
-  50%{transform:translate(14px,-18px) rotate(1.8deg) scale(1.05)}
+  text-align:center;
 }
 </style>
 </head>
 
-<body class="flex items-center justify-center relative">
+<body class="flex items-center justify-center">
 
-<div class="relative w-full max-w-md mx-4 rounded-3xl shadow-2xl glass p-6 space-y-5">
+<div class="w-full max-w-md mx-4 glass rounded-3xl shadow-2xl p-6 space-y-4">
+
   <div class="logo">€ ⇄ лв</div>
   <h1 class="text-center text-2xl text-[#14532D]">DualPay</h1>
 
@@ -61,11 +56,11 @@ h1{font-family:'Comfortaa',cursive}
   </div>
 
   <div class="grid grid-cols-2 gap-3">
-    <input id="paidBGN" placeholder="Платено лв" type="number" step="0.01" class="rounded-xl p-3 input-forest">
-    <input id="paidEUR" placeholder="Платено €" type="number" step="0.01" class="rounded-xl p-3 input-forest">
+    <input id="paidBGN" type="number" step="0.01" placeholder="Платено лв" class="rounded-xl p-3 input-forest">
+    <input id="paidEUR" type="number" step="0.01" placeholder="Платено €" class="rounded-xl p-3 input-forest">
   </div>
 
-  <div id="error" class="hidden bg-red-200 p-3 rounded-xl text-center font-semibold">
+  <div id="error" class="hidden bg-red-200 text-red-900 p-3 rounded-xl text-center font-semibold">
     Недостатъчна сума
   </div>
 
@@ -74,6 +69,12 @@ h1{font-family:'Comfortaa',cursive}
     <div id="changeAlt" class="text-sm text-gray-600"></div>
   </div>
 
+  <!-- INSTALL BUTTON -->
+  <button id="installBtn"
+    class="hidden w-full py-3 rounded-xl bg-[#14532D] text-white font-semibold shadow-lg">
+    Инсталирай приложението
+  </button>
+
   <div class="text-center text-xs text-gray-500">
     Курс: 1 EUR = 1.95583 BGN<br>
     © Nikolai Lazarov
@@ -81,36 +82,34 @@ h1{font-family:'Comfortaa',cursive}
 </div>
 
 <script>
-/* === APP LOGIC === */
+/* === LOGIC === */
 const rate=1.95583;
-const due=document.getElementById('due');
-const dueCur=document.getElementById('dueCur');
-const paidBGN=document.getElementById('paidBGN');
-const paidEUR=document.getElementById('paidEUR');
-const error=document.getElementById('error');
-const result=document.getElementById('result');
-const changeMain=document.getElementById('changeMain');
-const changeAlt=document.getElementById('changeAlt');
+const due=dueCur=paidBGN=paidEUR=error=result=changeMain=changeAlt=null;
+const d=document.getElementById.bind(document);
+
+const dueEl=d("due"),curEl=d("dueCur"),bgnEl=d("paidBGN"),eurEl=d("paidEUR");
+const err=d("error"),res=d("result"),main=d("changeMain"),alt=d("changeAlt");
 
 function calc(){
-  const dueVal=parseFloat(due.value)||0;
-  const dueBGN=dueCur.value==='EUR'?dueVal*rate:dueVal;
-  const paid=(parseFloat(paidBGN.value)||0)+(parseFloat(paidEUR.value)||0)*rate;
+  const due=parseFloat(dueEl.value)||0;
+  const dueBGN=curEl.value==="EUR"?due*rate:due;
+  const paid=(parseFloat(bgnEl.value)||0)+(parseFloat(eurEl.value)||0)*rate;
   let diff=paid-dueBGN;
+
   if(diff<-0.01){
-    error.classList.remove('hidden');
-    result.classList.add('hidden');
+    err.classList.remove("hidden");
+    res.classList.add("hidden");
     return;
   }
   diff=Math.max(0,diff);
-  error.classList.add('hidden');
-  result.classList.remove('hidden');
-  changeMain.textContent=diff.toFixed(2)+' лв';
-  changeAlt.textContent=(diff/rate).toFixed(2)+' €';
+  err.classList.add("hidden");
+  res.classList.remove("hidden");
+  main.textContent=diff.toFixed(2)+" лв";
+  alt.textContent=(diff/rate).toFixed(2)+" €";
 }
-[due,dueCur,paidBGN,paidEUR].forEach(e=>e.addEventListener('input',calc));
+[dueEl,curEl,bgnEl,eurEl].forEach(e=>e.addEventListener("input",calc));
 
-/* === EMBEDDED MANIFEST === */
+/* === MANIFEST (INLINE) === */
 const manifest={
   name:"DualPay",
   short_name:"DualPay",
@@ -119,33 +118,42 @@ const manifest={
   background_color:"#0f2a1d",
   theme_color:"#14532D"
 };
-const manifestURL=URL.createObjectURL(new Blob(
-  [JSON.stringify(manifest)],
-  {type:"application/manifest+json"}
-));
-const link=document.createElement("link");
-link.rel="manifest";
-link.href=manifestURL;
-document.head.appendChild(link);
+const mURL=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:"application/manifest+json"}));
+const ml=document.createElement("link");
+ml.rel="manifest"; ml.href=mURL;
+document.head.appendChild(ml);
 
-/* === EMBEDDED SERVICE WORKER === */
+/* === SERVICE WORKER (INLINE) === */
 if("serviceWorker" in navigator){
-  const swCode=`
-    const CACHE="dualpay-v1";
+  const sw=`
+    const C="dualpay";
     self.addEventListener("install",e=>{
-      e.waitUntil(
-        caches.open(CACHE).then(c=>c.addAll(["./"]))
-      );
+      e.waitUntil(caches.open(C).then(c=>c.addAll(["./"])))
     });
     self.addEventListener("fetch",e=>{
-      e.respondWith(
-        caches.match(e.request).then(r=>r||fetch(e.request))
-      );
+      e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)))
     });
   `;
-  const swURL=URL.createObjectURL(new Blob([swCode],{type:"text/javascript"}));
+  const swURL=URL.createObjectURL(new Blob([sw],{type:"text/javascript"}));
   navigator.serviceWorker.register(swURL);
 }
+
+/* === INSTALL BUTTON === */
+let deferredPrompt;
+const btn=d("installBtn");
+
+window.addEventListener("beforeinstallprompt",e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  btn.classList.remove("hidden");
+});
+
+btn.addEventListener("click",async()=>{
+  btn.classList.add("hidden");
+  deferredPrompt.prompt();
+  await deferredPrompt.userChoice;
+  deferredPrompt=null;
+});
 </script>
 
 </body>
